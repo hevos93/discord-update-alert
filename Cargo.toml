@@ -1,0 +1,19 @@
+[package]
+name = "discord-rss"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4"
+serde = "1.0.136"
+dotenv = "0.15.0"
+futures = "0.3"
+reqwest = { version = "0.11.13", features = ["stream"] }
+rss = "2.0.2"
+
+[dependencies.mongodb]
+version = "2.2.0"
+default-features = false
+features = ["async-std-runtime"]
