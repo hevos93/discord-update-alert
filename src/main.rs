@@ -6,7 +6,7 @@ use std::env;
 use dotenv::dotenv;
 
 use actix_web::{web::Data, App, HttpResponse, HttpServer, Responder};
-use crate::api::api_calls::{get_all_items, test};
+use crate::api::api_calls::{get_all_items, steam_games};
 use crate::repositories::mongodb_repo::MongoRepo;
 use crate::repositories::request_repo::FeedRepo;
 
@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(db_data.clone())
             .service(get_all_items)
-            .service(test)
+            .service(steam_games)
     })
         .bind(("127.0.0.1", 4000))?
         .run()

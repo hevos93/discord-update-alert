@@ -1,3 +1,4 @@
+use mongodb::bson::DateTime;
 use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
 
@@ -7,8 +8,8 @@ pub struct FeedItem {
     pub id: Option<ObjectId>,
     pub title: String,
     pub link: String,
-    pub content: String,
-    pub pub_date: String
+    pub pub_date: DateTime,
+    pub newest: i32
 }
 
 #[derive(Debug, Serialize, Deserialize)]

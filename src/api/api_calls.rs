@@ -53,14 +53,35 @@ pub async fn get_all_items(db: Data<MongoRepo>, path: Path<String>) -> HttpRespo
 }
 
 #[get("/steam/{game}")]
-pub async fn test(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
+pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
     let game = path.into_inner();
     if game.is_empty() {
         return HttpResponse::BadRequest().body("Unsupported game/software");
     }
-
     let client = FeedRepo::init().await;
-    client.steam_feed(game).await;
 
-    HttpResponse::Ok().json("Henlo")
+    let latest_feed_pub_date = client.steam_check_date(&game).await;
+    let latest_db_pub = db.get_latest_item(&game).await;
+    println!("{}\tvs\t{}", latest_db_pub,latest_feed_pub_date);
+    if latest_feed_pub_date == latest_db_pub {
+        return HttpResponse::NotModified().finish();
+    } else {
+        println!("Else?");
+        let request_result = client.steam_feed(&game).await;
+        println!("{}",request_result[1].1);
+        let db_result = db.get_latest_five_items(&game).await;
+        println!("{}",db_result[1].title);
+
+        let mut counter:usize = 0;
+        while counter < db_result.len(){
+            println!("{}\tvs\t{}", db_result[counter].pub_date,request_result[counter].2);
+            if &db_result[counter].pub_date != &request_result[counter].2 {
+                db.insert_one_feed_item(&game, &request_result[counter]).await;
+            }
+            counter += 1;
+        }
+
+
+        HttpResponse::Ok().json("hello")
+    }
 }
