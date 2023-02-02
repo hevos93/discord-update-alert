@@ -1,43 +1,7 @@
 use crate::{repositories::mongodb_repo::MongoRepo};
+use crate::{repositories::request_repo::ReqwestRepo};
+use actix_web::{get, web::{Data, Path}, HttpResponse, post};
 
-use crate::{repositories::request_repo::FeedRepo};
-use actix_web::{
-    get,
-    web::{Data, Json, Path},
-    HttpResponse,
-};
-use mongodb::Client;
-
-use crate::models::feed_item::FeedItem;
-
-
-//#[post("/user")]
-//pub async fn create_user(db: Data<MongoRepo>, new_user: Json<User>) -> HttpResponse {
-//    let data = User {
-//        id: None,
-//        name: new_user.name.to_owned(),
-//        location: new_user.location.to_owned(),
-//        title: new_user.title.to_owned(),
-//    };
-//    let user_detail = db.create_user(data).await;
-//    match user_detail {
-//        Ok(user) => HttpResponse::Ok().json(user),
-//        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-//    }
-//}
-
-//#[get("/user/{id}")]
-//pub async fn get_user(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
-//    let id = path.into_inner();
-//    if id.is_empty() {
-//        return HttpResponse::BadRequest().body("invalid ID");
-//    }
-//    let user_detail = db.get_user(&id).await;
-//    match user_detail {
-//        Ok(user) => HttpResponse::Ok().json(user),
-//        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-//    }
-//}
 
 #[get("/{collection}/items")]
 pub async fn get_all_items(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
@@ -58,30 +22,33 @@ pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpRespons
     if game.is_empty() {
         return HttpResponse::BadRequest().body("Unsupported game/software");
     }
-    let client = FeedRepo::init().await;
+    let client = ReqwestRepo::init().await;
 
     let latest_feed_pub_date = client.steam_check_date(&game).await;
     let latest_db_pub = db.get_latest_item(&game).await;
-    println!("{}\tvs\t{}", latest_db_pub,latest_feed_pub_date);
+
     if latest_feed_pub_date == latest_db_pub {
         return HttpResponse::NotModified().finish();
     } else {
-        println!("Else?");
         let request_result = client.steam_feed(&game).await;
-        println!("{}",request_result[1].1);
-        let db_result = db.get_latest_five_items(&game).await;
-        println!("{}",db_result[1].title);
+        let db_result = db.get_latest_ten_items(&game).await;
 
         let mut counter:usize = 0;
         while counter < db_result.len(){
-            println!("{}\tvs\t{}", db_result[counter].pub_date,request_result[counter].2);
-            if &db_result[counter].pub_date != &request_result[counter].2 {
+            if &latest_db_pub < &request_result[counter].2 {
                 db.insert_one_feed_item(&game, &request_result[counter]).await;
+                let _discord_response = client.post_to_discord(&game, &request_result[counter]).await;
+                //TODO Implement checks for response
             }
             counter += 1;
         }
 
-
         HttpResponse::Ok().json("hello")
     }
+}
+
+#[post("/test")]
+pub async fn test() -> HttpResponse {
+    println!("Test initated");
+    HttpResponse::Ok().json("Test completed")
 }
