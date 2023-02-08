@@ -1,7 +1,5 @@
-use crate::repositories::help_functions::{steam_check_valid_app_id, steam_get_app_webhook, steam_date_to_rfc3339, month_to_number};
+use crate::repositories::help_functions::{steam_get_app_webhook, steam_date_to_rfc3339};
 
-use std::env;
-use actix_web::HttpResponse;
 use mongodb::bson::DateTime;
 use reqwest::{Client, Response};
 use rss::{Channel, Enclosure};
@@ -21,7 +19,7 @@ impl ReqwestRepo {
     }
 
 //GET DATA FUNCTIONS
-    pub async fn steam_check_date (&self, app_id: &String) -> DateTime {
+    pub async fn steam_app_check_date (&self, app_id: &String) -> DateTime {
         let url = format!("https://store.steampowered.com/feeds/news/app/{}", app_id);
         let response = self.client.get(url)
             .send()
@@ -74,7 +72,6 @@ impl ReqwestRepo {
 
     //POST TO DISCORD FUNCTION
     pub async fn post_to_discord(&self, app_id: &String, insert_item: &(String, String, DateTime, String)) -> Response {
-        println!("Post to discord");
         let discord_url = steam_get_app_webhook(&app_id);
         let title = insert_item.clone().0;
         let link = insert_item.clone().1;
@@ -100,8 +97,10 @@ impl ReqwestRepo {
             .send()
             .await
             .unwrap();
-
-        println!("{:?}", response);
         response
+    }
+
+    pub async fn post_request(&self, url: String) {
+        self.client.post(url).send().await.unwrap();
     }
 }

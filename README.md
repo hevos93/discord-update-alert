@@ -3,6 +3,12 @@ This repository defines an API that sends a webhook to a specified discord serve
 
 The API works with MongoDB and stores every recorded update for future use.
 
+For reference:
+ - 1091500  =>  Cyberpunk 2077
+ - 292030   =>  The Witcher 3: Wild Hunt
+ - 573090   =>  Stormworks
+ - 1144200  =>  Ready or Not
+
 ENV variables: 
  - API_PORT
  - MONGO_URL

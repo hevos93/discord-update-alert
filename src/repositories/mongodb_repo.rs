@@ -123,10 +123,9 @@ impl MongoRepo {
             img
         };
 
-        let response = col.insert_one(new_doc, None)
+        let _response = col.insert_one(new_doc, None)
             .await
             .ok()
             .expect("Error inserting item");
-        println!("{:?}", response);
     }
 }

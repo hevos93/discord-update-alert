@@ -1,8 +1,7 @@
 use crate::{repositories::mongodb_repo::MongoRepo};
 use crate::{repositories::request_repo::ReqwestRepo};
-use crate::repositories::help_functions;
 use actix_web::{get, web::{Data, Path}, HttpResponse, post};
-use crate::repositories::help_functions::{steam_check_valid_app_id};
+use crate::repositories::help_functions::steam_check_valid_app_id;
 
 
 #[get("/{collection}/items")]
@@ -32,7 +31,7 @@ pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpRespons
 
     let client = ReqwestRepo::init().await;
 
-    let latest_feed_pub_date = client.steam_check_date(&app_id).await;
+    let latest_feed_pub_date = client.steam_app_check_date(&app_id).await;
     let latest_db_pub = db.get_latest_item(&app_id).await;
 
     if latest_feed_pub_date == latest_db_pub {
@@ -55,8 +54,22 @@ pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpRespons
     }
 }
 
-#[post("/test")]
-pub async fn test() -> HttpResponse {
-    println!("Test initated");
-    HttpResponse::Ok().json("Test completed")
+#[post("/steam_feeds")]
+pub async fn update_feeds() -> HttpResponse {
+
+    let feeds = vec![
+        "1091500".to_string(),  //Cyberpunk2077
+        "292030".to_string(),   //Witcher3
+        "573090".to_string(),   //Stormworks
+        "1144200".to_string(),  //ReadyOrNot
+    ];
+
+    let client = ReqwestRepo::init().await;
+
+    for app_id in feeds {
+        let url: String = format!("http://localhost:4000/steam/{}", app_id);
+        client.post_request(url).await;
+    }
+
+    HttpResponse::Ok().json("Feeds updated")
 }
