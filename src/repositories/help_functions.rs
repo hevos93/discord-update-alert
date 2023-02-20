@@ -1,5 +1,4 @@
 use mongodb::bson::DateTime;
-use std::env;
 
 pub fn steam_check_valid_app_id(app_id: &String) -> bool {
     let valid_id = vec!["292030", "1091500", "573090", "1144200"];
@@ -12,37 +11,6 @@ pub fn steam_check_valid_app_id(app_id: &String) -> bool {
     result
 }
 
-pub fn steam_get_app_webhook (game: &String) -> String {
-    let app_id: String;
-    match game.as_str() {
-        "292030" => {
-            app_id = match env::var("WITCHER3_HOOK") {
-                Ok(v) => v.to_string(),
-                Err(_) => format!("Error loading env variables")
-            };
-        }
-        "1091500" => {
-            app_id = match env::var("CYBERPUNK2077_HOOK") {
-                Ok(v) => v.to_string(),
-                Err(_) => format!("Error loading env variables")
-            };            }
-        "573090" => {
-            app_id = match env::var("STORMWORKS_HOOK"){
-                Ok(v) => v.to_string(),
-                Err(_) => format!("Error loading env variables")
-            };            }
-        "1144200" => {
-            app_id = match env::var("READY_OR_NOT_HOOK") {
-                Ok(v) => v.to_string(),
-                Err(_) => format!("Error loading env variables")
-            };
-        }
-        _ => {
-            app_id= "0".parse().unwrap();
-        }
-    };
-    app_id
-}
 
 pub fn steam_date_to_rfc3339(date_string: String) -> DateTime {
     //Wed, 04 Jan 2023 15:20:01 +0000

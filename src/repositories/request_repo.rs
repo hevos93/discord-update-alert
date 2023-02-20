@@ -1,10 +1,11 @@
-use crate::repositories::help_functions::{steam_get_app_webhook, steam_date_to_rfc3339};
+use crate::repositories::help_functions::steam_date_to_rfc3339;
+use crate::models::vault_response::VaultResponse;
 
+use std::env;
 use mongodb::bson::DateTime;
 use reqwest::{Client, Response};
 use rss::{Channel, Enclosure};
 use serde_json::json;
-
 
 
 pub struct ReqwestRepo {
@@ -69,10 +70,9 @@ impl ReqwestRepo {
         channel_content
     }
 
-
     //POST TO DISCORD FUNCTION
     pub async fn post_to_discord(&self, app_id: &String, insert_item: &(String, String, DateTime, String)) -> Response {
-        let discord_url = steam_get_app_webhook(&app_id);
+        let discord_url = self.get_kv_secret(&app_id).await;
         let title = insert_item.clone().0;
         let link = insert_item.clone().1;
         let image = insert_item.clone().3;
@@ -103,4 +103,31 @@ impl ReqwestRepo {
     pub async fn post_request(&self, url: String) {
         self.client.post(url).send().await.unwrap();
     }
+
+    // GET SECRET FROM VAULT
+    pub async fn get_kv_secret (&self, game: &str) -> String {
+        let vault_url = match env::var("VAULT_URL") {
+            Ok(v) => v.to_string(),
+            Err(_) => format!("Error loading env variables")
+        };
+        let vault_token = match env::var("DISCORD_UPDATE_ALERT_VAULT_TOKEN") {
+            Ok(v) => v.to_string(),
+            Err(_) => format!("Error loading env variables")
+        };
+
+        let url = format!("{}{}",vault_url,game);
+
+        let response: VaultResponse = self.client.get(url)
+            .header("X-Vault-Token", vault_token)
+            .send()
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+
+        let webhook = response.data.data.webhook;
+        webhook
+    }
+
 }

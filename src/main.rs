@@ -5,7 +5,7 @@ mod repositories;
 use std::env;
 use dotenv::dotenv;
 use actix_web::{web::Data, App, HttpServer};
-use crate::api::api_calls::{get_all_items, steam_games, update_feeds};
+use crate::api::api_calls::{get_all_items, steam_games, test, update_feeds};
 use crate::repositories::mongodb_repo::MongoRepo;
 
 #[actix_web::main]
@@ -25,6 +25,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_all_items)
             .service(steam_games)
             .service(update_feeds)
+            .service(test)
     })
         .bind(("127.0.0.1", 4000))?
         .run()

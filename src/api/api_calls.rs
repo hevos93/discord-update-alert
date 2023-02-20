@@ -73,3 +73,9 @@ pub async fn update_feeds() -> HttpResponse {
 
     HttpResponse::Ok().json("Feeds updated")
 }
+
+#[get("/test")]
+pub async fn test() -> HttpResponse {
+
+    HttpResponse::Ok().json("Test complete")
+}
