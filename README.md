@@ -12,11 +12,8 @@ For reference:
 ENV variables: 
  - API_PORT
  - MONGO_URL
- - Discord Webhooks
-   - CYBERPUNK2077_HOOK
-   - WITCHER3_HOOK
-   - STORMWORKS_HOOK
-   - READY_OR_NOT_HOOK
+ - VAULT_TOKEN
+ - VAULT_URL
 
 MongoDB:
  - Database(discord-rss)
