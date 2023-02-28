@@ -76,6 +76,9 @@ pub async fn update_feeds() -> HttpResponse {
         "292030".to_string(),   //Witcher3
         "573090".to_string(),   //Stormworks
         "1144200".to_string(),  //ReadyOrNot
+        "648800".to_string(),   //Raft
+        "990080".to_string(),   //HogwartsLegacy
+        "1196310".to_string(),  //FantasyPlaygroundsUnity
     ];
 
     let client = ReqwestRepo::init().await;
