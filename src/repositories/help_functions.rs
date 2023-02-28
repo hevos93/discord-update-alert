@@ -3,7 +3,7 @@ use log::{info, warn};
 
 pub fn steam_check_valid_app_id(app_id: &String) -> bool {
     info!("steam_check_valid_app_id - help_functions.rs");
-    let valid_id = vec!["292030", "1091500", "573090", "1144200"];
+    let valid_id = vec!["292030", "1091500", "573090", "1144200", "648800", "990080", "1196310"];
     let mut result: bool = false;
 
     for id in valid_id {

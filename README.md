@@ -8,6 +8,9 @@ For reference:
  - 292030   =>  The Witcher 3: Wild Hunt
  - 573090   =>  Stormworks
  - 1144200  =>  Ready or Not
+ - 648800   =>  Raft
+ - 990080   =>  Hogwarts Legacy
+ - 1196310  =>  Fantasy Playgrounds Unity
 
 ENV variables: 
  - API_PORT
