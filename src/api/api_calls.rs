@@ -1,31 +1,44 @@
 use crate::{repositories::mongodb_repo::MongoRepo};
 use crate::{repositories::request_repo::ReqwestRepo};
 use actix_web::{get, web::{Data, Path}, HttpResponse, post};
+use log::{info, warn};
 use crate::repositories::help_functions::steam_check_valid_app_id;
 
 
 #[get("/{collection}/items")]
 pub async fn get_all_items(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
+    info!("get_all_items - api_calls.rs");
     let col = path.into_inner();
     if col.is_empty() {
+        warn!("No collection provided in path");
         return HttpResponse::BadRequest().body("invalid Collection");
     }
+    info!("/{col}/items");
     let items = db.get_all_items(col).await;
     match items {
-        Ok(items) => HttpResponse::Ok().json(items),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+        Ok(items) => {
+            info!("Collection returned, function end");
+            HttpResponse::Ok().json(items)
+        },
+        Err(err) => {
+            warn!("An error occured");
+            HttpResponse::InternalServerError().body(err.to_string())
+        },
     }
 }
 
 #[post("/steam/{app_id}")]
 pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpResponse {
+    info!("steam_games - api_calls.rs");
     let app_id = path.into_inner();
     if app_id.is_empty() {
+        warn!("Unsupported game or software");
         return HttpResponse::BadRequest().body("Unsupported game/software");
     }
 
     let valid_id = steam_check_valid_app_id(&app_id);
     if !valid_id {
+        warn!("Unsupported game or software");
         return HttpResponse::BadRequest().body("Unsupported game/software")
     }
 
@@ -35,6 +48,7 @@ pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpRespons
     let latest_db_pub = db.get_latest_item(&app_id).await;
 
     if latest_feed_pub_date == latest_db_pub {
+        info!("No update to feeds, function end");
         return HttpResponse::NotModified().finish();
     } else {
         let request_result = client.steam_feed(&app_id).await;
@@ -49,14 +63,14 @@ pub async fn steam_games(db: Data<MongoRepo>, path: Path<String>) -> HttpRespons
             }
             counter += 1;
         }
-
+        info!("Update finished, function end");
         HttpResponse::Ok().json("hello")
     }
 }
 
 #[post("/steam_feeds")]
 pub async fn update_feeds() -> HttpResponse {
-
+    info!("update_feeds - api_calls.rs");
     let feeds = vec![
         "1091500".to_string(),  //Cyberpunk2077
         "292030".to_string(),   //Witcher3
@@ -68,9 +82,10 @@ pub async fn update_feeds() -> HttpResponse {
 
     for app_id in feeds {
         let url: String = format!("http://localhost:4000/steam/{}", app_id);
+        info!("URL: {}", url);
         client.post_request(url).await;
     }
-
+    info!("Feeds updated, function end");
     HttpResponse::Ok().json("Feeds updated")
 }
 

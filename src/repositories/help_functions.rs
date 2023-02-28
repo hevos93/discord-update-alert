@@ -1,6 +1,8 @@
 use mongodb::bson::DateTime;
+use log::{info, warn};
 
 pub fn steam_check_valid_app_id(app_id: &String) -> bool {
+    info!("steam_check_valid_app_id - help_functions.rs");
     let valid_id = vec!["292030", "1091500", "573090", "1144200"];
     let mut result: bool = false;
 
@@ -8,11 +10,13 @@ pub fn steam_check_valid_app_id(app_id: &String) -> bool {
         if app_id == id {
             result = true }
     };
+    info!("App_id checked and result returned, function end");
     result
 }
 
 
 pub fn steam_date_to_rfc3339(date_string: String) -> DateTime {
+    info!("steam_date_to_rfc3339 - help_functions.rs");
     //Wed, 04 Jan 2023 15:20:01 +0000
     let yyyy = date_string.get(12..16).unwrap().to_string();
     let month = date_string.get(8..11).unwrap().to_string();
@@ -25,10 +29,12 @@ pub fn steam_date_to_rfc3339(date_string: String) -> DateTime {
 
     let temp_rfc_date = format!("{yyyy}-{MM}-{dd}T{hh}:{mm}:{ss}.000+00:00");
     let rfc_date = DateTime::parse_rfc3339_str(temp_rfc_date).unwrap();
+    info!("Date converted and returned, function end");
     rfc_date
 }
 
 pub fn month_to_number(month: String) -> String {
+    info!("month_to_number - help_functions.rs");
     let month_num;
 
     match month.as_str() {
@@ -70,7 +76,9 @@ pub fn month_to_number(month: String) -> String {
         }
         _ => {
             month_num = "00".to_string();
+            warn!("Month not found, returned 00 as default");
         }
     }
+    info!("Month converted and returned, function end");
     month_num
 }
