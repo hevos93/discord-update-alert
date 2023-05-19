@@ -95,5 +95,8 @@ pub async fn update_feeds() -> HttpResponse {
 #[get("/test")]
 pub async fn test() -> HttpResponse {
 
-    HttpResponse::Ok().json("Test complete")
+    let client = ReqwestRepo::init().await;
+    let stonk = "123".to_string();
+    let response = client.get_stock_price(&stonk).await;
+    response
 }

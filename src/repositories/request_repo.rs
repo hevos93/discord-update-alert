@@ -2,11 +2,13 @@ use crate::repositories::help_functions::steam_date_to_rfc3339;
 use crate::models::vault_response::VaultResponse;
 
 use std::env;
+use actix_web::HttpResponse;
 use mongodb::bson::DateTime;
 use reqwest::{Client, Response};
 use rss::{Channel, Enclosure};
 use serde_json::json;
 use log::{info, warn};
+use scraper::{Html, Selector};
 
 
 pub struct ReqwestRepo {
@@ -21,7 +23,7 @@ impl ReqwestRepo {
         ReqwestRepo { client }
     }
 
-//GET DATA FUNCTIONS
+//RSS FUNCTIONS
     pub async fn steam_app_check_date (&self, app_id: &String) -> DateTime {
     info!("steam_app_check_date - request_repo.rs");
         let url = format!("https://store.steampowered.com/feeds/news/app/{}", app_id);
@@ -75,6 +77,31 @@ impl ReqwestRepo {
         info!("RSS feed content returned, function end");
         channel_content
     }
+
+    //HTML Scraper
+    pub async fn get_stock_price(&self, stock_id: &String) -> HttpResponse {
+        let html = r#"
+            <ul>
+                <li id="this one">Foo</li>
+                <li>Bar</li>
+                <li>Baz</li>
+            </ul>
+            "#;
+
+        let html_doc = Html::parse_document(html);
+        let selector = Selector::parse(r#"input[id="this one"]"#).unwrap();
+        let fragment = html_doc.select(&selector).next().unwrap();
+
+        println!("{:?}", fragment);
+
+
+        HttpResponse::Ok().body("Stonks")
+    }
+
+
+
+
+
 
     //POST TO DISCORD FUNCTION
     pub async fn post_to_discord(&self, app_id: &String, insert_item: &(String, String, DateTime, String)) -> Response {
